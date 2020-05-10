@@ -1,0 +1,3 @@
+rootProject.name='CoroutineCachePro'
+include ':app'
+include ':coroutine_cachepro'

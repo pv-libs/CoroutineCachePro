@@ -3,10 +3,13 @@ package com.pv_libs.coroutine_cache_pro.ui
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.observe
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
 import com.pv_libs.coroutine_cache_pro.R
+import com.pv_libs.coroutine_cache_pro.databinding.ActivitySampleBinding
 import com.pv_libs.coroutine_cache_pro.ui.adapters.UsersAdapter
-import kotlinx.android.synthetic.main.activity_sample.*
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 class SampleActivity : AppCompatActivity() {
 
@@ -14,21 +17,30 @@ class SampleActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_sample)
+
+        val dataBinding =
+            DataBindingUtil.setContentView<ActivitySampleBinding>(this, R.layout.activity_sample)
 
         val adapter = UsersAdapter()
+        dataBinding.recyclerView.adapter = adapter
 
-        recyclerView.adapter = adapter
-
-        viewModel.usersListLiveData.observe(this) {
-            adapter.listItems = it ?: ArrayList()
+        Timber.d("onCreate")
+        lifecycleScope.launchWhenCreated {
+            viewModel.usersListFlow.collectLatest {
+                Timber.d("usersListFlow - collectLatest")
+                adapter.listItems = it?.users ?: ArrayList()
+            }
         }
 
-        viewModel.inApiRunningLiveData.observe(this) {
-            swipeRefreshLayout.isRefreshing = it
+        lifecycleScope.launchWhenCreated {
+            viewModel.inApiRunningStateFlow.collectLatest {
+                Timber.d("swipeRefreshLayout.isRefreshing - $it")
+                dataBinding.swipeRefreshLayout.isRefreshing = it
+            }
         }
 
-        swipeRefreshLayout.setOnRefreshListener {
+        dataBinding.swipeRefreshLayout.setOnRefreshListener {
+            Timber.d("swipeRefreshLayout.setOnRefreshListener")
             viewModel.fetchUsers()
         }
 

@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pv_libs.coroutine_cache_pro.R
 import com.pv_libs.coroutine_cache_pro.models.User
-import kotlinx.android.synthetic.main.item_user.view.*
 
 class UsersAdapter : RecyclerView.Adapter<UsersAdapter.UserViewHolder>() {
 
@@ -36,7 +36,8 @@ class UsersAdapter : RecyclerView.Adapter<UsersAdapter.UserViewHolder>() {
         @SuppressLint("SetTextI18n")
         fun bindWith(user: User) {
 
-            itemView.userNameView.text = "${user.firstName} ${user.lastName}"
+            itemView.findViewById<TextView>(R.id.userNameView).text =
+                "${user.firstName} ${user.lastName}"
 
 
         }

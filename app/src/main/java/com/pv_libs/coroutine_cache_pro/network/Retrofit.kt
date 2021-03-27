@@ -1,10 +1,10 @@
 package com.pv_libs.coroutine_cache_pro.network
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.pv_libs.coroutine_cachepro.CachePro
 import com.pv_libs.coroutine_cachepro.adapters.CoroutineCacheProCallAdapter
 import com.pv_libs.coroutine_cachepro.attachCachePro
-import com.readystatesoftware.chuck.ChuckInterceptor
 import okhttp3.Cache
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -41,8 +41,8 @@ object Retrofit {
         okHttpClientBuilder.attachCachePro(cachePro)
 
         // For observing api calls with GUI
-        okHttpClientBuilder.addInterceptor(ChuckInterceptor(context))
-        okHttpClientBuilder.addNetworkInterceptor(ChuckInterceptor(context))
+        okHttpClientBuilder.addInterceptor(ChuckerInterceptor.Builder(context).build())
+        okHttpClientBuilder.addNetworkInterceptor(ChuckerInterceptor.Builder(context).build())
 
 
         return okHttpClientBuilder.build()

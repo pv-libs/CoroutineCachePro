@@ -1,15 +1,15 @@
 package com.pv_libs.coroutine_cachepro.api_caller
 
-import androidx.lifecycle.LiveData
 import com.pv_libs.coroutine_cachepro.ApiResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import retrofit2.Response
 
 interface CoroutineApiCaller<NetworkResponse> {
 
-    val isApiInProgressLiveData: LiveData<Boolean>
+    val isApiInProgressSateFlow: StateFlow<Boolean>
 
-    fun getResponseFlow(callServerOnSubscribe: Boolean = true): Flow<ApiResult<Response<NetworkResponse>>>
+    fun getResponseFlow(callServerOnCollect: Boolean = true): Flow<ApiResult<Response<NetworkResponse>>>
 
     fun fetchFromServer()
 

@@ -1,11 +1,9 @@
 package com.pv_libs.coroutine_cachepro.api_caller
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import com.pv_libs.coroutine_cachepro.ApiResult
 import com.pv_libs.coroutine_cachepro.utils.isFromCache
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
 import retrofit2.Call
@@ -15,27 +13,27 @@ import retrofit2.Response
 internal class CoroutineApiCallerImp<NetworkResponse>(
     private val builder: Builder<NetworkResponse>
 ) : CoroutineApiCaller<NetworkResponse> {
+    private val TAG = "CoroutineApiCallerImp"
+    private val isApiInProgressMutableStateFlow = MutableStateFlow(false)
+    override val isApiInProgressSateFlow: StateFlow<Boolean> = isApiInProgressMutableStateFlow
 
-    private val isApiInProgressMutableLiveData = MutableLiveData<Boolean>()
-    override val isApiInProgressLiveData: LiveData<Boolean> = isApiInProgressMutableLiveData
-
-    private val networkCallsBroadcastChannel =
-        ConflatedBroadcastChannel<Flow<Response<NetworkResponse>>>()
-
-    private val networkCallsFlow = networkCallsBroadcastChannel
-        .asFlow()
-        .flattenConcat()
+    private val networkCallsMutableFlow =
+        MutableSharedFlow<Flow<Response<NetworkResponse>>>()
 
     private val cacheCallFlow = flow {
         try {
-            emit(builder.getNewCacheCall())
+            log("emit getNewCacheCall")
+            emit(builder.getResponseFromCache())
         } catch (e: Exception) {
             // error in cache call is ignored
         }
     }
 
-    private val responseFlow = merge(cacheCallFlow, networkCallsFlow)
+    private val responseFlow = merge(cacheCallFlow, networkCallsMutableFlow.flattenConcat())
         .filter {
+            log("responseFlow filter")
+            log("isLoadedAtLeastOnce - $isLoadedAtLeastOnce")
+            log("isFromCache - ${it.isFromCache()}")
             if (isLoadedAtLeastOnce && it.isFromCache()) {
                 false
             } else {
@@ -44,38 +42,46 @@ internal class CoroutineApiCallerImp<NetworkResponse>(
             }
         }
         .map {
+            log("responseFlow - ApiResult.Success ")
             ApiResult.Success(it)
         }
         .catch {
+            log("responseFlow - ApiResult.Error")
             ApiResult.Error(it as Exception)
         }
         .flowOn(Dispatchers.IO)
 
     private var isLoadedAtLeastOnce = false
 
-    override fun getResponseFlow(callServerOnSubscribe: Boolean): Flow<ApiResult<Response<NetworkResponse>>> {
-        if (callServerOnSubscribe) {
+    override fun getResponseFlow(callServerOnCollect: Boolean): Flow<ApiResult<Response<NetworkResponse>>> {
+        if (callServerOnCollect) {
             fetchFromServer()
         }
         return responseFlow
     }
 
     override fun fetchFromServer() {
+        log("fetchFromServer")
         try {
             runBlocking {
                 // runBlocking is only used because below function never suspends
-                networkCallsBroadcastChannel.send(flow {
-                    emit(builder.getNewServerCall())
+                networkCallsMutableFlow.emit(flow {
+                    log("emit NewServerCall")
+                    emit(builder.getResponseFromServer())
                 }.onStart {
-                    isApiInProgressMutableLiveData.postValue(true)
+                    log("isApiInProgressMutableStateFlow.value = true")
+                    isApiInProgressMutableStateFlow.value = true
                 }.onCompletion {
-                    isApiInProgressMutableLiveData.postValue(false)
+                    log("isApiInProgressMutableStateFlow.value = false")
+                    isApiInProgressMutableStateFlow.value = false
                 })
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
+
+    private fun log(message: String) = Log.d(TAG, message)
 
     class Builder<NetworkResponse>(
         private val originalCall: Call<NetworkResponse>,
@@ -85,10 +91,10 @@ internal class CoroutineApiCallerImp<NetworkResponse>(
         fun build(): CoroutineApiCaller<NetworkResponse> =
             CoroutineApiCallerImp(this)
 
-        fun getNewCacheCall() =
+        fun getResponseFromCache(): Response<NetworkResponse> =
             cacheCallAdapter.adapt(originalCall.clone()).execute()
 
-        fun getNewServerCall() =
+        fun getResponseFromServer(): Response<NetworkResponse> =
             serverCallAdapter.adapt(originalCall.clone()).execute()
 
     }

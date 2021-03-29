@@ -39,7 +39,8 @@ internal class CacheProNetworkInterceptor(
                 // overriding the cache control send by the server
                 requestBuilder.removeHeader(CACHE_CONTROL)
             }
-            response.newBuilder().addHeader(CACHE_CONTROL, "private, max-age=0")
+            requestBuilder.removeHeader(CACHE_CONTROL)
+            requestBuilder.addHeader(CACHE_CONTROL, "private, max-age=0")
         }
 
         return response

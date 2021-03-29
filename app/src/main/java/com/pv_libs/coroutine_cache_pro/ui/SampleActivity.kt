@@ -27,7 +27,7 @@ class SampleActivity : AppCompatActivity() {
         Timber.d("onCreate")
         lifecycleScope.launchWhenCreated {
             viewModel.usersListFlow.collectLatest {
-                Timber.d("usersListFlow - collectLatest")
+                Timber.d("usersListFlow - collectLatest - $it - ${it?.users?.size}")
                 adapter.listItems = it?.users ?: ArrayList()
             }
         }

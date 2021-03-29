@@ -7,6 +7,7 @@ import com.pv_libs.coroutine_cachepro.adapters.CoroutineCacheProCallAdapter
 import com.pv_libs.coroutine_cachepro.attachCachePro
 import okhttp3.Cache
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
@@ -36,6 +37,7 @@ object Retrofit {
         val okHttpClientBuilder = OkHttpClient.Builder()
 
         okHttpClientBuilder.cache(cache)
+        okHttpClientBuilder.addInterceptor(HttpLoggingInterceptor())
 
         val cachePro = CachePro.Builder(context).build()
         okHttpClientBuilder.attachCachePro(cachePro)

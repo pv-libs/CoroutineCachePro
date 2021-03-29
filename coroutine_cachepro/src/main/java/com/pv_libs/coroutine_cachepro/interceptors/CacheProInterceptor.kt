@@ -1,5 +1,6 @@
 package com.pv_libs.coroutine_cachepro.interceptors
 
+import android.util.Log
 import com.pv_libs.coroutine_cachepro.annotations.ApiCache
 import com.pv_libs.coroutine_cachepro.annotations.ApiNoCache
 import com.pv_libs.coroutine_cachepro.annotations.ForceCacheCall
@@ -34,7 +35,7 @@ internal class CacheProInterceptor(
         //Trying to request cache data when network is not connected
         if (forceCacheCall || (!hasInternet && enableOffline) || (isAnnotatedAsApiCache && !hasInternet)) {
             // getting data from cache when there no internet
-
+            Log.d("CacheProInterceptor", "forceCacheCall - $forceCacheCall")
             request = request.newBuilder()
                 .addHeader(CACHE_CONTROL, "max-stale ,private, only-if-cached").build()
         }

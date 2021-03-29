@@ -1,5 +1,6 @@
 package com.pv_libs.coroutine_cachepro.adapters
 
+import android.util.Log
 import com.pv_libs.cachepro_rxjava.utils.add
 import com.pv_libs.cachepro_rxjava.utils.wrapWith
 import com.pv_libs.coroutine_cachepro.ApiResult
@@ -22,10 +23,11 @@ class CoroutineCacheProCallAdapter<NetworkResponse>(
     private val serverCallAdapter: CallAdapter<NetworkResponse, Call<NetworkResponse>>
 ) : CallAdapter<NetworkResponse, Any> {
 
+
     override fun adapt(call: Call<NetworkResponse>): Any {
         val apiCaller =
             CoroutineApiCallerImp.Builder(call, cacheCallAdapter, serverCallAdapter).build()
-
+        log(returnTypeInfo.toString())
         if (returnTypeInfo.outerLayer == CoroutineApiCaller::class.java) {
             // returnType is RxApiCaller<NetworkResponse>
             return apiCaller
@@ -67,7 +69,7 @@ class CoroutineCacheProCallAdapter<NetworkResponse>(
                 return null
             }
             val returnTypeInfo = returnType.getReturnTypeInfo() ?: return null
-
+            log(returnTypeInfo.toString())
             if (!returnTypeInfo.validate()) {
                 return null
             }
@@ -91,8 +93,9 @@ class CoroutineCacheProCallAdapter<NetworkResponse>(
             )
         }
     }
-
     companion object {
+        private const val TAG = "CallAdapter"
+        private fun log(message: String) = Log.d(TAG, message)
         private val ANNOTATIONS = Annotations()
     }
 }

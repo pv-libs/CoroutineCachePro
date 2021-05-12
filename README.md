@@ -39,7 +39,6 @@ val retrofit = Retrofit.Builder()
     .baseUrl("https://reqres.in")
     .client(okHttpClient)
     .addCallAdapterFactory(CoroutineCacheProCallAdapter.Factory())
-    .addCallAdapterFactory(CoroutineCacheProCallAdapter.Factory())
     .addConverterFactory(GsonConverterFactory.create())
     .build()
 ```

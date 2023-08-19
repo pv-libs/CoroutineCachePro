@@ -1,0 +1,30 @@
+name: Publish Library to GitHub Packages
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          server-id: maven  # Value of the distributionManagement/repository/id field of the pom.xml
+          settings-path: ${{ github.workspace }}  # location for the settings.xml file
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build and Publish
+        env:
+          USERNAME_GITHUB: ${{ github.repository_owner }}
+          TOKEN_GITHUB: ${{ secrets.GH_TOKEN }}
+        run: ./gradlew publish
+

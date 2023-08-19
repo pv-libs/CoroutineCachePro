@@ -17,3 +17,5 @@
 .externalNativeBuild
 .cxx
 *.apk
+/.idea/deploymentTargetDropDown.xml
+/.idea/kotlinc.xml

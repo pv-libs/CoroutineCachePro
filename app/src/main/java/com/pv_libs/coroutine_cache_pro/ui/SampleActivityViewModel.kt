@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import com.pv_libs.coroutine_cache_pro.models.GetUsersResponse
 import com.pv_libs.coroutine_cache_pro.network.Retrofit
 import com.pv_libs.coroutine_cache_pro.utils.unWrapResponse
+import com.pv_libs.coroutine_cachepro.ApiResult
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 
 class SampleActivityViewModel(app: Application) : AndroidViewModel(app) {
@@ -19,14 +21,27 @@ class SampleActivityViewModel(app: Application) : AndroidViewModel(app) {
     val inApiRunningStateFlow = apiCaller.isApiInProgressSateFlow
 
     val usersListFlow: StateFlow<GetUsersResponse?> = apiCaller.getResponseFlow()
-        .unWrapResponse {
+        .onEach {
+            when(it){
+                is ApiResult.Error -> showToast(it.exception.localizedMessage)
+                is ApiResult.Success -> {
+                    val rawResponse = it.data.raw()
+                    rawResponse.cacheResponse?.let {
+                        showToast("Fetched from cache")
+                    }
+                    rawResponse.networkResponse?.let {
+                        showToast("Fetched from server")
+                    }
+                }
+            }
+        }.unWrapResponse {
             showToast(it.localizedMessage)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
 
     private fun showToast(message: String?) {
-        Toast.makeText(getApplication(), message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show()
     }
 
     fun fetchUsers() {

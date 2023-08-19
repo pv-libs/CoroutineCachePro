@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.pv_libs.coroutine_cache_pro">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:name=".SampleApp"
         android:icon="@mipmap/ic_launcher"
@@ -10,7 +10,8 @@
         android:supportsRtl="true"
         android:allowBackup="false"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.SampleActivity">
+        <activity android:name=".ui.SampleActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

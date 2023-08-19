@@ -5,7 +5,7 @@ import retrofit2.Invocation
 import retrofit2.Response
 
 fun Response<*>.isFromCache() =
-    raw().networkResponse() == null || raw().networkResponse()?.code() == 304
+    raw().networkResponse == null || raw().networkResponse?.code == 304
 
 
 /**

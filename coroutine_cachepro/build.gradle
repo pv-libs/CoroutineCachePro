@@ -1,33 +1,27 @@
-//apply plugin: 'com.novoda.bintray-release'
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'maven-publish'
-
-/*
-publish {
-    userOrg = 'pv-libs'
-    repoName = 'CachePro'
-    groupId = 'com.pv-libs.CachePro'
-    artifactId = 'CoroutineCachePro'
-    publishVersion = '0.1.0'
-    desc = 'Android library to take full advantage of HttpCache'
-    website = 'https://github.com/pv-libs/CoroutineCachePro'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'maven-publish'
 }
-*/
 
 android {
-    compileSdkVersion 30
+    namespace 'com.pv_libs.coroutine_cachepro'
+    compileSdk 33
 
     defaultConfig {
-        minSdkVersion 19
-        targetSdkVersion 30
-        versionCode 3
-        versionName "0.2.0"
+        minSdk 19
+        targetSdk 33
+        versionCode 4
+        versionName "0.3.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
     }
-
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -36,53 +30,44 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'androidx.core:core-ktx:1.3.2'
-    testImplementation 'junit:junit:4.13.2'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22"
+    implementation 'androidx.core:core-ktx:1.10.1'
 
+    implementation "com.squareup.okhttp3:okhttp:4.11.0"
     implementation "com.squareup.retrofit2:retrofit:2.9.0"
     implementation "com.squareup.retrofit2:converter-gson:2.9.0"
 
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    testImplementation 'junit:junit:4.13.2'
+
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
-afterEvaluate {
-    publishing {
-        publications {
-            // Creates a Maven publication called "release".
-            release(MavenPublication) {
-                // Applies the component for the release build variant.
+publishing {
+    publications {
+        release(MavenPublication) {
+
+            // You can then customize attributes of the publication as shown below.
+            groupId = 'com.github.pv_libs'
+            artifactId = 'coroutine_cachepro'
+            version = '0.3.0'
+
+            afterEvaluate {
                 from components.release
-
-                // You can then customize attributes of the publication as shown below.
-                groupId = 'com.github.pv_libs'
-                artifactId = 'coroutine_cachepro'
-                version = '0.2.2'
-            }
-            // Creates a Maven publication called “debug”.
-            debug(MavenPublication) {
-                // Applies the component for the debug build variant.
-                from components.debug
-
-                groupId = 'com.github.pv_libs'
-                artifactId = 'coroutine_cachepro'
-                version = '0.2.2'
             }
         }
     }

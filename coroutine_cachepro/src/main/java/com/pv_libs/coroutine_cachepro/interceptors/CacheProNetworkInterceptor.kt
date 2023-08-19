@@ -27,7 +27,7 @@ internal class CacheProNetworkInterceptor(
         val request = chain.request()
         val response = chain.proceed(request)
 
-        if (request.method().equals(GET, true)) return response
+        if (request.method.equals(GET, true)) return response
 
         val isAnnotatedAsApiNoCache = request.hasAnnotation(ApiNoCache::class.java)
         val isAnnotatedAsApiCache = request.hasAnnotation(ApiCache::class.java)

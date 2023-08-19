@@ -16,9 +16,9 @@ object Retrofit {
 
     private const val CACHE_SIZE = 100 * 1024 * 1020 // 50MB
 
-    fun getCoroutineApiService(context: Context): RxApiService {
+    fun getCoroutineApiService(context: Context): CoroutineApiService {
         return provideRetrofit(context.applicationContext)
-            .create(RxApiService::class.java)
+            .create(CoroutineApiService::class.java)
     }
 
     private fun provideRetrofit(context: Context): Retrofit {
